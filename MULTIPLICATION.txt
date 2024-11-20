@@ -1,0 +1,266 @@
+orc io 0
+input_enable io 0
+
+	// 1. since we have to perform the full addition algorithm 3 times, we need to be clever and save space. We start the scratch register with zeroes; so, the first OEN if statement will only copy the multiplicand to the scratch, not bothering to perform the addition (0 + n = n, for any number n)
+
+	// 2. the second step's addition is performed between the right-shifted (?) multiplicand (so, appending a zero at the beginning of the digits io4~io7) and the scratch register (scr0~scr3 and an extra digit for left-shifting in accordance with the multiplicand). Thus we have:
+
+		//	| 0  |io4 |io5 |io6 |io7 | +
+		//	|scr0|scr1|scr2|scr3|scr4|
+
+		// since the digit scr0 + 0 will always result in scr0, we shall not perform this part of the addition.
+		// we do however need to perform an actual addition of io7 and scr4 due to the fact that io6 + scr3 may have produced a carry-out. finally, any carry-out overflow from this operation is stored in scr5.
+
+	// 3. the third step's addition is like the second, but we perform an extra right-shift and an extra addition:
+
+		//	| 0  | 0  |io4 |io5 |io6 |io7 | +
+		//	|scr0|scr1|scr2|scr3|scr4|scr5|
+
+
+
+// //////////////////////////
+
+// Step 1
+
+output_enable io 1
+
+load io 4
+store scr 0
+load io 5
+store scr 1
+load io 6
+store scr 2
+load io 7
+store scr 3
+
+
+
+// //////////////////////////
+
+// Step 2
+
+output_enable io 2
+
+load scr 7
+xnor io 4
+xnor scr 1
+store scr 6
+
+// Ci [from scr 7] * (A + B)
+load io 4
+or scr 1
+and scr 7
+store scr 7
+
+// A * B
+load io 4
+and scr 1
+
+// Ci * (A + B) [from scr 7] + A * B
+or scr 7
+store scr 7
+
+load scr 6
+store scr 1
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 5
+xnor scr 2
+store scr 6
+
+load io 5
+or scr 2
+and scr 7
+store scr 7
+
+load io 5
+and scr 2
+or scr 7
+store scr 7
+
+load scr 6
+store scr 2
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 6
+xnor scr 3
+store scr 6
+
+load io 6
+or scr 3
+and scr 7
+store scr 7
+
+load io 6
+and scr 3
+or scr 7
+store scr 7
+
+load scr 6
+store scr 3
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 7
+xnor scr 4
+store scr 6
+
+load io 7
+or scr 4
+and scr 7
+store scr 7
+
+load io 7
+and scr 4
+or scr 7
+store scr 7
+
+load scr 6
+store scr 4
+
+// halt io 0
+no_change io 0
+
+
+
+// overflow as last digit: write Co on S5, write 0 on S7
+
+load scr 7
+store scr 5
+
+andc io 0
+store scr 7
+
+
+
+
+
+// Step 3
+
+output_enable io 3
+
+load scr 7
+xnor io 4
+xnor scr 2
+store scr 6
+
+// Ci [from scr 7] * (A + B)
+load io 4
+or scr 2
+and scr 7
+store scr 7
+
+// A * B
+load io 4
+and scr 2
+
+// Ci * (A + B) [from scr 7] + A * B
+or scr 7
+store scr 7
+
+load scr 6
+store scr 2
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 5
+xnor scr 3
+store scr 6
+
+load io 5
+or scr 3
+and scr 7
+store scr 7
+
+load io 5
+and scr 3
+or scr 7
+store scr 7
+
+load scr 6
+store scr 3
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 6
+xnor scr 4
+store scr 6
+
+load io 6
+or scr 4
+and scr 7
+store scr 7
+
+load io 6
+and scr 4
+or scr 7
+store scr 7
+
+load scr 6
+store scr 4
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 7
+xnor scr 5
+store scr 6
+
+load io 7
+or scr 5
+and scr 7
+store scr 7
+
+load io 7
+and scr 5
+or scr 7
+store scr 7
+
+load scr 6
+store scr 5
+
+// halt io 0
+no_change io 0
+
+
+
+// overflow as last digit: write Co on S5, write 0 on S7
+
+load scr 7
+store scr 6
+
+andc io 0
+store scr 7
+
+
+
+//
+
+halt io 0
+halt io 0
+halt io 0

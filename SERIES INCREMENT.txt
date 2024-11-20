@@ -1,0 +1,189 @@
+// the program takes as input two 6 digit binary numbers and outputs their sum.
+	// sum should be 7-bit;
+	// if the sum is 7-bit, then the algorithm should stop if the 7-th bit is high. so, it is able to increment, from any starting number, using any one increment, n times, until the summation is greater than 2^7
+	// maybe the human should check that and see, since idk if i can implement such a function for halting he algorithm
+
+
+
+
+
+
+
+
+orc io 0
+input_enable io 0
+output_enable io 0
+
+// 1st, load the 1st 7-bit number in the scratch register
+// write the 2nd number in the input
+// after 1st bit + 1st bit, FIRST COMPUTE CARRY which you store in 2nd bit, write sum in result's 1st; for 2nd bit + 2nd bit, FIRST COMPUTE CARRY which you store in 3rd bit; etc
+// for the last bit, write the carry in the 8th bit. => everything occupied
+
+// increment: same algorithm
+// 8th bit IS NOT the last digit; when computing the 7th digit, you make a special check to see whether its carry-out is 1; if yes, halt the algorithm because it'll overflow at the next increment
+
+
+
+
+
+// unfortunately we need to use 2 auxiliary bits so the SCR can only have a 6-bit number
+// PERHAPS you can increase the number of... numbers... if you tweak the carry-in for the first digits (so that it's not always 0)
+// A -- S0 ~ S5; B -- IO1 ~ IO6; Ci/Co -- S7; Sum -- S6
+// Before anything: input number A and copy it to SCR; then, halt and input number B
+
+// Ci, A, B -> Sum (S6)
+// Ci, A, B -> Co (S7)
+// Write Sum over A
+
+// Final step: write Co on S6, write 0 on S7
+
+// //////////////////////////
+
+load scr 7
+xnor io 1
+xnor scr 0
+store scr 6
+
+// Ci [from scr 7] * (A + B)
+load io 1
+or scr 0
+and scr 7
+store scr 7
+
+// A * B
+load io 1
+and scr 0
+
+// Ci * (A + B) [from scr 7] + A * B
+or scr 7
+store scr 7
+
+load scr 6
+store scr 0
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 2
+xnor scr 1
+store scr 6
+
+load io 2
+or scr 1
+and scr 7
+store scr 7
+
+load io 2
+and scr 1
+or scr 7
+store scr 7
+
+load scr 6
+// there's a bug that, if you press TOO fast, or someshit like that, the next store executes on the io out instead of scratch lmao
+store scr 1
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 3
+xnor scr 2
+store scr 6
+
+load io 3
+or scr 2
+and scr 7
+store scr 7
+
+load io 3
+and scr 2
+or scr 7
+store scr 7
+
+load scr 6
+store scr 2
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 4
+xnor scr 3
+store scr 6
+
+load io 4
+or scr 3
+and scr 7
+store scr 7
+
+load io 4
+and scr 3
+or scr 7
+store scr 7
+
+load scr 6
+store scr 3
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 5
+xnor scr 4
+store scr 6
+
+load io 5
+or scr 4
+and scr 7
+store scr 7
+
+load io 5
+and scr 4
+or scr 7
+store scr 7
+
+load scr 6
+store scr 4
+
+// halt io 0
+no_change io 0
+
+
+
+load scr 7
+xnor io 6
+xnor scr 5
+store scr 6
+
+load io 6
+or scr 5
+and scr 7
+store scr 7
+
+load io 6
+and scr 5
+or scr 7
+store scr 7
+
+load scr 6
+store scr 5
+
+// Final step: write Co on S6, write 0 on S7
+
+load scr 7
+store scr 6
+
+andc io 0
+store scr 7
+
+// halt so you can change the input number or stop iterating
+halt io 0
