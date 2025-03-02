@@ -35,11 +35,11 @@ Three primary control buttons:
 The halting system works by using an S-R flip-flop which stores the value of whether the system is halted or not.
 
 3. Program Counter & Memory
-- Program Counter
+Program Counter
 * Built from two 74HC163 4-bit counters to form an 8-bit counter.
 * Increments every clock pulse, allowing access to up to 256 instructions.
 
-- Memory
+Memory
 * AS6C62256 SRAM. The data bus holds 8-bit instructions split into:
 	- 4-bit opcode (the actual instruction).
 	- 1-bit chip select (choosing between I/O and scratch).
@@ -48,32 +48,32 @@ The halting system works by using an S-R flip-flop which stores the value of whe
 * Only 256 addresses are actively used, but the chip can hold much more (64Kb).
 * The address line on pin 4 was damaged by ESD and was replaced by remapping to pin 12 which would've otherwise been left unused (more memory than the PC can count).
 
-- Programming
+Programming
 * Programs can be entered manually via DIP switches or automatically using an Arduino-based programmer.
 * A custom Python assembler (see repository) can be run on a computer to convert human-readable assembly-like code into binary instructions. These can then be sent to an Arduino for programming the device automatically.
 
 4. Processor
-- The MC14500
+The MC14500
 * Executes 1-bit logical instructions.
 * Takes 4-bit opcode and 1-bit data input.
 * Outputs to a single Result Register LED.
 
-- Data Signal Fix
+Data Signal Fix
 * The MC14500's data pin requires more current than the input logic chips can provide.
 * A 2N2222 transistor amplifier boosts the signal.
 
-- Control Signals
+Control Signals
 * External clock fed into the processor.
 * Four flag outputs for program flow (e.g., HALT triggered by instruction 1111).
 * Write signal activates data output when writing to memory.
 
 5. Input/Output Registers
-- Input
+Input
 * Managed by a 74HC4051 multiplexer.
 * Selects one of 8 input sources (7 DIP switches + 1 Result Register feedback).
 * Data passed to MC14500 via the transistor amplifier.
 
-- Output
+Output
 * Managed by a 74HC259 addressable latch.
 * Stores 1-bit results into 8 possible output addresses.
 * Write operations are controlled by:
@@ -81,7 +81,7 @@ The halting system works by using an S-R flip-flop which stores the value of whe
 	- The chip select pin, determining if we write to I/O or the scratch register.
 	- Due to unreliable MC14500 output behavior, a custom XOR gate (diode-transistor logic) was added to conditionally invert the result during store complement instructions.
 
-- Scratch Register
+Scratch Register
 * A combination of input and output registers. Can be used much like a RAM.
 
 
