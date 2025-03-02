@@ -22,11 +22,11 @@ The system is split into several key sections:
 
 
 ## System Details
-1. Clock
+### Clock
 The clock provides two modes: manual i.e. one pulse per button press, or automatic pulses from the 555 timer circuit.
 The clock frequency can be adjusted using a potentiometer. The 555 is used both as a debounce circuit (manual mode) and an oscillator (automatic mode).
 
-2. Controls
+### Controls
 Three primary control buttons:
 
 - HALT: Stops execution.
@@ -34,7 +34,7 @@ Three primary control buttons:
 - RESET: Resets the program counter and registers.
 The halting system works by using an S-R flip-flop which stores the value of whether the system is halted or not.
 
-3. Program Counter & Memory
+### Program Counter & Memory
 Program Counter
 * Built from two 74HC163 4-bit counters to form an 8-bit counter.
 * Increments every clock pulse, allowing access to up to 256 instructions.
@@ -52,7 +52,7 @@ Programming
 * Programs can be entered manually via DIP switches or automatically using an Arduino-based programmer.
 * A custom Python assembler (see repository) can be run on a computer to convert human-readable assembly-like code into binary instructions. These can then be sent to an Arduino for programming the device automatically.
 
-4. Processor
+### Processor
 The MC14500
 * Executes 1-bit logical instructions.
 * Takes 4-bit opcode and 1-bit data input.
@@ -67,7 +67,7 @@ Control Signals
 * Four flag outputs for program flow (e.g., HALT triggered by instruction 1111).
 * Write signal activates data output when writing to memory.
 
-5. Input/Output Registers
+### Input/Output Registers
 Input
 * Managed by a 74HC4051 multiplexer.
 * Selects one of 8 input sources (7 DIP switches + 1 Result Register feedback).
@@ -98,15 +98,15 @@ Programs (see repository):
 ## Challenges & Lessons Learned
 * ESD damage caused loss of an address line. Fortunately I was able to fix it by simply connecting an otherwise unused spare line.
 * I might've bought a counterfeit MC14500 since, for certain instructions and pins, it was not behaving as intended:
-	- the data pin requires around 40mA for a HIGH input, but the 74hc40-51 demultiplexers give around 10mA for a HIGH input. 10mA is, however, enough to turn on a 2N2222 NPN transistor, which in turn forwards a strong enough current from the power rails if it receives the 10mA.
-	- the data pin also has problems with outputting things. Store instructions seem to behave semi-randomly, sometimes they output the correct value, sometimes they don't. By hardcoding an XOR circuit to filter the problematic instructions, they now function as expected.
+	- The data pin requires around 40mA for a HIGH input, but the 74hc40-51 demultiplexers give around 10mA for a HIGH input. 10mA is, however, enough to turn on a 2N2222 NPN transistor, which in turn forwards a strong enough current from the power rails if it receives the 10mA.
+	- The data pin also has problems with outputting things. Store instructions seem to behave semi-randomly, sometimes they output the correct value, sometimes they don't. By hardcoding an XOR circuit to filter the problematic instructions, they now function as expected.
 
 
 
 ### Potential Future Improvements
-Replace damaged components.
-Explore faster clock speeds.
-Add better display for debugging (7-segment display or serial monitor).
+* Replace damaged components.
+* Explore faster clock speeds.
+* Add better display for debugging (7-segment display or serial monitor).
 
 ### Acknowledgements
 David from Usagi Electric for inspiring me to do this project and for designing his implementation of the Minimal ICU Unit.
